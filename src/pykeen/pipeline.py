@@ -736,7 +736,7 @@ def pipeline(  # noqa: C901
             model=model_instance,
             optimizer=optimizer_instance,
         )
-    elif training_loop is not SLCWATrainingLoop:
+    elif not issubclass(training_loop, SLCWATrainingLoop):
         raise ValueError('Can not specify negative sampler with LCWA')
     else:
         negative_sampler = get_negative_sampler_cls(negative_sampler)
@@ -744,7 +744,7 @@ def pipeline(  # noqa: C901
             params=dict(cls=negative_sampler.__name__, kwargs=negative_sampler_kwargs),
             prefix='negative_sampler',
         )
-        training_loop_instance: TrainingLoop = SLCWATrainingLoop(
+        training_loop_instance: TrainingLoop = training_loop(
             model=model_instance,
             optimizer=optimizer_instance,
             negative_sampler_cls=negative_sampler,
