@@ -557,7 +557,10 @@ def pipeline(  # noqa: C901
     evaluator: Union[None, str, Type[Evaluator]] = None,
     evaluator_kwargs: Optional[Mapping[str, Any]] = None,
     evaluation_kwargs: Optional[Mapping[str, Any]] = None,
-    # 9. Tracking
+    # 9. Validation
+    enable_validation: Optional[bool] = False,
+    validation_kwargs: Optional[Mapping[str, Any]] = None,
+    # 10. Tracking
     result_tracker: Union[None, str, Type[ResultTracker]] = None,
     result_tracker_kwargs: Optional[Mapping[str, Any]] = None,
     # Misc
@@ -635,6 +638,11 @@ def pipeline(  # noqa: C901
         Keyword arguments to pass to the evaluator on instantiation
     :param evaluation_kwargs:
         Keyword arguments to pass to the evaluator's evaluate function on call
+
+    :param enable_validation:
+        Enable validation during training
+    :param validation_kwargs
+        Validation keyword arguments
 
     :param result_tracker:
         The ResultsTracker class or name
@@ -809,6 +817,22 @@ def pipeline(  # noqa: C901
     logging.debug(f"stopper_kwargs: {stopper_kwargs}")
     logging.debug(f"evaluator: {evaluator}")
     logging.debug(f"evaluator_kwargs: {evaluator_kwargs}")
+
+    # Validation during training
+    if enable_validation:
+
+        # Set default parameters
+        if validation_kwargs is None:
+            validation_kwargs = {}
+        validation_kwargs.setdefault('at_epoch', 50)
+        validation_kwargs.setdefault('callback', None)
+
+        # Inject validation parameters into training kwargs
+        training_kwargs['enable_validation'] = True
+        training_kwargs['validation_kwargs'] = validation_kwargs
+        training_kwargs['validation_triples'] = validation_triples_factory.mapped_triples
+        training_kwargs['evaluator'] = evaluator_instance
+        training_kwargs['evaluation_kwargs'] = evaluation_kwargs
 
     # Train like Cristiano Ronaldo
     training_start_time = time.time()
