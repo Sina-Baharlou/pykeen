@@ -157,7 +157,7 @@ class Objective:
             kwargs_ranges=self.optimizer_kwargs_ranges,
         )
 
-        if self.training_loop is not SLCWATrainingLoop:
+        if not issubclass(self.training_loop, SLCWATrainingLoop):
             _negative_sampler_kwargs = {}
         else:
             _negative_sampler_kwargs = _get_kwargs(
@@ -602,7 +602,7 @@ def hpo_pipeline(
     training_loop: Type[TrainingLoop] = get_training_loop_cls(training_loop)
     study.set_user_attr('training_loop', training_loop.get_normalized_name())
     logger.info(f'Using training loop: {training_loop}')
-    if training_loop is SLCWATrainingLoop:
+    if issubclass(training_loop, SLCWATrainingLoop):
         negative_sampler: Optional[Type[NegativeSampler]] = get_negative_sampler_cls(negative_sampler)
         study.set_user_attr('negative_sampler', negative_sampler.get_normalized_name())
         logger.info(f'Using negative sampler: {negative_sampler}')
