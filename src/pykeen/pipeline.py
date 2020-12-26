@@ -819,20 +819,17 @@ def pipeline(  # noqa: C901
     logging.debug(f"evaluator_kwargs: {evaluator_kwargs}")
 
     # Validation during training
-    if enable_validation:
+    if validation_kwargs is None:
+        validation_kwargs = {}
+    validation_kwargs.setdefault('at_epoch', 50)
+    validation_kwargs.setdefault('callback', None)
 
-        # Set default parameters
-        if validation_kwargs is None:
-            validation_kwargs = {}
-        validation_kwargs.setdefault('at_epoch', 50)
-        validation_kwargs.setdefault('callback', None)
-
-        # Inject validation parameters into training kwargs
-        training_kwargs['enable_validation'] = True
-        training_kwargs['validation_kwargs'] = validation_kwargs
-        training_kwargs['validation_triples'] = validation_triples_factory.mapped_triples
-        training_kwargs['evaluator'] = evaluator_instance
-        training_kwargs['evaluation_kwargs'] = evaluation_kwargs
+    # Inject validation parameters into training kwargs
+    training_kwargs['enable_validation'] = enable_validation
+    training_kwargs['validation_kwargs'] = validation_kwargs
+    training_kwargs['validation_triples_factory'] = validation_triples_factory
+    training_kwargs['evaluator'] = evaluator_instance
+    training_kwargs['evaluation_kwargs'] = evaluation_kwargs
 
     # Train like Cristiano Ronaldo
     training_start_time = time.time()
