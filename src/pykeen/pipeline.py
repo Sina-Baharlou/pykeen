@@ -174,6 +174,7 @@ from typing import Any, Collection, Dict, Iterable, List, Mapping, Optional, Typ
 
 import pandas as pd
 import torch
+from pykeen.training import LCWATrainingLoop
 from torch.optim.optimizer import Optimizer
 
 from .datasets import get_dataset
@@ -818,18 +819,20 @@ def pipeline(  # noqa: C901
     logging.debug(f"evaluator: {evaluator}")
     logging.debug(f"evaluator_kwargs: {evaluator_kwargs}")
 
-    # Validation during training
-    if validation_kwargs is None:
-        validation_kwargs = {}
-    validation_kwargs.setdefault('at_epoch', 50)
-    validation_kwargs.setdefault('callback', None)
+    # Inject validation arguments
+    if not isinstance(training_loop,(SLCWATrainingLoop, LCWATrainingLoop)):
+        # Validation during training
+        if validation_kwargs is None:
+            validation_kwargs = {}
+        validation_kwargs.setdefault('at_epoch', 50)
+        validation_kwargs.setdefault('callback', None)
 
-    # Inject validation parameters into training kwargs
-    training_kwargs['enable_validation'] = enable_validation
-    training_kwargs['validation_kwargs'] = validation_kwargs
-    training_kwargs['validation_triples_factory'] = validation_triples_factory
-    training_kwargs['evaluator'] = evaluator_instance
-    training_kwargs['evaluation_kwargs'] = evaluation_kwargs
+        # Inject validation parameters into training kwargs
+        training_kwargs['enable_validation'] = enable_validation
+        training_kwargs['validation_kwargs'] = validation_kwargs
+        training_kwargs['validation_triples_factory'] = validation_triples_factory
+        training_kwargs['evaluator'] = evaluator_instance
+        training_kwargs['evaluation_kwargs'] = evaluation_kwargs
 
     # Train like Cristiano Ronaldo
     training_start_time = time.time()
