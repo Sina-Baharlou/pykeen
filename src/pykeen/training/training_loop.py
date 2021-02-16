@@ -312,7 +312,8 @@ class TrainingLoop(ABC):
             _tqdm_kwargs = dict(desc=f'Training epochs on {self.device}', unit='epoch')
             if tqdm_kwargs is not None:
                 _tqdm_kwargs.update(tqdm_kwargs)
-            epochs = trange(1, 1 + num_epochs, **_tqdm_kwargs)
+            #epochs = trange(1, 1 + num_epochs, **_tqdm_kwargs)
+            epochs = range(1, 1 + num_epochs)
             logger.info(f'using stopper: {stopper}')
         else:
             epochs = range(1, 1 + num_epochs)
@@ -336,10 +337,10 @@ class TrainingLoop(ABC):
 
             # Batching
             # Only create a progress bar when not in size probing mode
-            if not only_size_probing:
-                batches = tqdm(train_data_loader, desc=f'Training batches on {self.device}', leave=False, unit='batch')
-            else:
-                batches = train_data_loader
+            #if not only_size_probing:
+            #    batches = tqdm(train_data_loader, desc=f'Training batches on {self.device}', leave=False, unit='batch')
+            #else:
+            batches = train_data_loader
 
             # Flag to check when to quit the size probing
             evaluated_once = False
@@ -397,10 +398,7 @@ class TrainingLoop(ABC):
             result_tracker.log_metrics({'loss': epoch_loss}, step=epoch)
 
             # Print loss information to console
-            epochs.set_postfix({
-                'loss': self.losses_per_epochs[-1],
-                'prev_loss': self.losses_per_epochs[-2] if epoch > 2 else float('nan'),
-            })
+
 
             if stopper is not None and stopper.should_evaluate(epoch) and stopper.should_stop(epoch):
                 return self.losses_per_epochs
